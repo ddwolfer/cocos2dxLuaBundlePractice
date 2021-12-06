@@ -1,83 +1,70 @@
-local PageView = class("MainScene", cc.Node) 
-local NewPage = {}
+local PageView = class("PageView", cc.Node)
 
 require "config"
 require "myHelper"
-NewPage[BundleMain.BundleType.BUNDLE_NORMAL] 	= require "bundlePageTypeNormal"
-NewPage[BundleMain.BundleType.BUNDLE_DAILY] 	= require "bundlePageTypeNormal"
-NewPage[BundleMain.BundleType.BUNDLE_BIG] 		= require "bundlePageTypeNormal"
+local BundleNormalView = require "bundleNormalView"
 
-function PageView:ctor()
-	print("@@ in pageview ctor")
+-- 建構式
+function PageView:ctor(uiRoot, buyButtonCallBack)
+	print ("@@ in PageView ctor")
+
+	self.m_uiRoot = uiRoot
+	self.m_buyButtonCallBack = buyButtonCallBack
+	self:enableNodeEvents()
+	if self.onCreate then self:onCreate() end
 end
--- 設置道具圖片與數量
-local function setItemData(itemNode, itemData)
-	local itemPrice = seekNodeByName(itemNode, "Num")
-	local itemSprite = seekNodeByName(itemNode, "Image")
-	itemPrice:setString("X"..itemData.Value)
-	itemSprite:setSpriteFrame(BundleMain.ItemList[tostring(itemData.ItemId)]["FrameName"])
+
+-- 初始化
+function PageView:onCreate()
+	print ("@@ in PageView onCreate")
+	self.m_pageViewPool = {}
+
+	if self.seekAllNodes then self:seekAllNodes() end
 end
--- 新增Page進PageView
-function PageView:addPage(pageViewNode, pageTable)
-	-- 依據 json 內設定好的禮包 type 決定要選擇哪個csb生成
-	print ("@@ BundleMain.BundleType.BUNDLE_NORMAL :", BundleMain.BundleType.BUNDLE_NORMAL)
-	print ("@@ pageTable.BundleType :", pageTable.BundleType)
-	local panelLayout = NewPage[pageTable.BundleType]:new(pageViewNode, pageTable)
-	-- if (pageTable.BundleType == BundleMain.BundleType.BUNDLE_NORMAL) then 		-- 普通禮包
-	-- 	panelLayout = NewPage[pageTable.BundleType]:new(pageViewNode, pageTable)
-	-- elseif (pageTable.BundleType == BundleMain.BundleType.BUNDLE_DAILY) then	-- 每日禮包
-	-- 	panelLayout = NewPage[pageTable.BundleType]:new(pageViewNode, pageTable)
-	-- elseif (pageTable.BundleType == BundleMain.BundleType.BUNDLE_BIG) then     -- 豪華大禮包
-	-- 	panelLayout = NewPage[pageTable.BundleType]:new(pageViewNode, pageTable)
-	-- end
-	-- 加進 PageView 節點
-	pageViewNode:addPage(panelLayout)
 
-
-	-- -- 依據道具數量決定要用哪個csb
-	-- local m_csbPath = "AnimationNode/Bundle"
-	-- -- 
-	-- if (pageTable.ItemCount == 3) then
-	-- 	m_csbPath = m_csbPath.."1.csb"
-	-- elseif (pageTable.ItemCount == 4) then
-	-- 	m_csbPath = m_csbPath.."2.csb"
-	-- elseif (pageTable.ItemCount == 6) then
-	-- 	m_csbPath = m_csbPath.."3.csb"
-	-- end
-	-- print("@@ Path:", m_csbPath, "pageTable.ItemCount:",pageTable.ItemCount)
-	-- -- 創新的 Layeout 與 新的頁面，
- --    local panelLayout = ccui.Layout:create()
-	-- local page = cc.CSLoader:createNode(m_csbPath)
-	-- page:setPosition(pageViewNode:getContentSize()["width"]/2, pageViewNode:getContentSize()["height"]/2)
-	
-	-- -- 更改金錢
-	-- local priceNode = seekNodeByName(page, "Price")
-	-- priceNode:setString(pageTable.Price)
-	-- print ("@@ change price to", pageTable.Price)
-
-	-- --更改道具 & 道具數量
-	-- for i=1,pageTable.ItemCount do
-	-- 	print("@@ set item",i)
-	-- 	local itemNode = seekNodeByName(page, "Item"..i)
-	-- 	setItemData(itemNode, pageTable.ItemList[i])
-	-- end
-
-	-- -- 加進 PageView 節點
-	-- panelLayout:addChild(page)
-	-- pageViewNode:addPage(panelLayout)
+-- 獲取該class 需要的節點
+function PageView:seekAllNodes( ... )
+	print ("@@ in PageView seekAllNodes")
+	self.m_pageViewNode = seekNodeByName(self.m_uiRoot, "PageView")
 end
--- 新增(更新)新的PageView
-function PageView:newPageView(pageViewNode, bundleList)
-	-- 刪除舊有pageview畫面 / 如果新增頁面時沒用 addPage 而用 addChild 的話，removeAll不會報錯，但是會有意外發生
-	pageViewNode:removeAllPages()
-	-- 去 list 看有幾頁要加
-	for idx, pageTable in pairs(bundleList) do
-		print("@@ create new panel", idx)
-		print("@@ itemCOunt:",pageTable.ItemCount)
-        self:addPage(pageViewNode, pageTable)
+
+-- 新增PageViews內容
+function PageView:newPageView(bundleList)
+	print ("@@ in PageView newPageView")
+	-- 刪除舊有pageview畫面
+	self.m_pageViewNode:removeAllPages()
+
+	for idx, bundleData in pairs(bundleList) do
+		print("@@ add",idx,"Page")
+		-- 如果pool內沒有生成過再生成，有生成過的話直接從pool中取就好
+		if (self.m_pageViewPool[bundleData.BundleId] == nil) then
+			local newPage = BundleNormalView:create(
+				bundleData, 
+				{x = self.m_pageViewNode:getContentSize()["width"]/2, 
+				 y = self.m_pageViewNode:getContentSize()["height"]/2}
+				)
+			newPage:retain() -- 已在class中onExit()寫入release()
+			newPage:setBundlePrice()
+			newPage:setItemData()
+			newPage:setBuyCallBack(self.m_buyButtonCallBack)
+			self.m_pageViewPool[newPage.m_bundleData.BundleId] = newPage
+		end
+		self.m_pageViewNode:addPage(self.m_pageViewPool[bundleData.BundleId])
 	end
-	-- 生成完pageview後從第一頁(0)開始
-	pageViewNode:setCurrentPageIndex(0)
+	dump(self.m_pageViewPool,"@@ pool after PageView:newPageView")
+
+	self.m_pageViewNode:setCurrentPageIndex(0)
 end
+
+-- 解構式
+function PageView:onExit()
+	print ("@@ in PageView exit")
+
+	for key, node in pairs(self.m_pageViewPool) do
+		node:release()
+	end
+	self:disableNodeEvents()
+end
+
 
 BundleMain.PageView = PageView
