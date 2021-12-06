@@ -1,0 +1,22 @@
+{
+    "BundleId": 2001,
+    "GroupId": 2,
+    "Name": "DailyBundle1",
+    "Price": 6,
+    "BundleType": 2,
+    "ItemCount": 4,
+    "ItemList": [{
+            "ItemId": 1,
+            "Value": 100
+        }, {
+            "ItemId": 20001,
+            "Value": 5
+        }, {
+            "ItemId": 20002,
+            "Value": 5
+        }, {
+            "ItemId": 20003,
+            "Value": 5
+        }
+    ]
+}

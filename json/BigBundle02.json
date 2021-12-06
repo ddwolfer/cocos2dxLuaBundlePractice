@@ -1,0 +1,28 @@
+{
+    "BundleId": 3002,
+    "GroupId": 3,
+    "Name": "BigBundle2",
+    "Price": 80,
+    "BundleType": 3,
+    "ItemCount": 6,
+    "ItemList": [{
+            "ItemId": 20001,
+            "Value": 30
+        }, {
+            "ItemId": 20002,
+            "Value": 30
+        }, {
+            "ItemId": 20003,
+            "Value": 30
+        }, {
+            "ItemId": 30001,
+            "Value": 30
+        }, {
+            "ItemId": 30002,
+            "Value": 30
+        }, {
+            "ItemId": 30003,
+            "Value": 30
+        }
+    ]
+}

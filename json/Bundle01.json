@@ -1,0 +1,19 @@
+{
+    "BundleId": 1001,
+    "GroupId": 1,
+    "Name": "Bundle1",
+    "Price": 1,
+    "BundleType": 1,
+    "ItemCount": 3,
+    "ItemList": [{
+            "ItemId": 10001,
+            "Value": 3
+        }, {
+            "ItemId": 10002,
+            "Value": 3
+        }, {
+            "ItemId": 10003,
+            "Value": 3
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "1": {
+        "Name": "紅寶石",
+        "FrameName": "LobbyLottery_Gem.png"
+    },
+    "10001": {
+        "Name": "加速卡",
+        "FrameName": "Lobbyr_Card1_Bag_item.png"
+    },
+    "10002": {
+        "Name": "鎖定卡",
+        "FrameName": "Lobbyr_Card2_Bag_item.png"
+    },
+    "10003": {
+        "Name": "冰凍卡",
+        "FrameName": "Lobbyr_Card3_Bag_item.png"
+    },
+    "10004": {
+        "Name": "加倍卡",
+        "FrameName": "Lobbyr_Card4_Bag_item.png"
+    },
+    "20001": {
+        "Name": "晶礦1",
+        "FrameName": "LobbyForge_blue_Bag_item.png"
+    },
+    "20002": {
+        "Name": "晶礦2",
+        "FrameName": "LobbyForge_Common_Bag_item.png"
+    },
+    "20003": {
+        "Name": "晶礦3",
+        "FrameName": "LobbyForge_yellow_Bag_item.png"
+    },
+    "30001": {
+        "Name": "經驗書1",
+        "FrameName": "LobbyRole_Exp1_Bag_item.png"
+    },
+    "30002": {
+        "Name": "經驗書2",
+        "FrameName": "LobbyRole_Exp2_Bag_item.png"
+    },
+    "30003": {
+        "Name": "經驗書3",
+        "FrameName": "LobbyRole_Exp3_Bag_item.png"
+    }
+}
