@@ -1,38 +1,34 @@
 --bundelModule.lua
 local BundleModule = class{"BundleModule", cc.Node}
 
-local fileUtils = cc.FileUtils:getInstance()
-
-fileUtils:addSearchPath("src/")
-fileUtils:addSearchPath("res/")
-
-require "config"
-require "myHelper"
-require "json.getJsonList"
 require "bundlePageView"
 require "bundleReward"
 require("baseState")
 require("fsmMachine")
 
+local idleState = BaseState:New("idleState")
+function idleState:OnEnter()  
+    print("@@ idleState:OnEnter()")
+    self:hide()
+end
 
 
 function BundleModule:ctor()
 	print("@@in BundleModule ctor")
-	   
+	  -- 禮包背景
+	self.m_uiRoot = nil
+    self.m_uiRoot = cc.CSLoader:createNode("AnimationNode/UI_Bundle.csb")
+    self.m_uiRoot:setPosition(CC_DESIGN_RESOLUTION.width/2, CC_DESIGN_RESOLUTION.height/2)
+    self.m_uiRoot:setVisible(false)
     if self.onCreate then self:onCreate() end
 end
 
 function BundleModule:onCreate()
 	print("@@in BundleModule onCreate")
 
-	-- 禮包背景
-    self.m_uiRoot = cc.CSLoader:createNode("AnimationNode/UI_Bundle.csb")
-    self.m_uiRoot:setPosition(CC_DESIGN_RESOLUTION.width/2, CC_DESIGN_RESOLUTION.height/2)
-    self:addChild(self.m_uiRoot)
-
     -- 購買動畫 
     self.m_BundleReward = BundleMain.BundleReward:create(self.m_uiRoot)
-    self:addChild(self.m_BundleReward)    
+    --self.m_uiRoot:addChild(self.m_BundleReward)    
 
     -- 禮包列表
     self.m_bundleList = {}
@@ -43,7 +39,7 @@ function BundleModule:onCreate()
 end
 
 function BundleModule:seekAllNodes()
-
+	print("@@in BundleModule seekAllNodes")
 	-- 右側禮包畫面節點
 	self.m_pageViewNode = seekNodeByName(self.m_uiRoot, "PageView")
 
@@ -52,26 +48,29 @@ function BundleModule:seekAllNodes()
 end
 
 function BundleModule:setStateMachine()
+	print("@@in BundleModule setStateMachine")
 	-- 初始(未顯示) 狀態
-	self.m_idleState = baseState:New("self.m_idleState")
-	
+	self.m_idleState = idleState
 
 	-- 請求資料 狀態
-	self.m_askDataState = baseState:New("self.m_askDataState")
-	
+	self.m_askDataState = BaseState:New("self.m_askDataState")
+
+
 	-- 顯示 狀態
-	self.m_showState = baseState:New("self.m_showState")
-	
+	self.m_showState = BaseState:New("self.m_showState")
+
+
 	-- 狀態機
     self.m_bundleStateMachine = FsmMachine:New()
     self.m_bundleStateMachine:AddState(self.m_idleState)
     self.m_bundleStateMachine:AddState(self.m_askDataState)
     self.m_bundleStateMachine:AddState(self.m_showState)
-    self.m_bundleStateMachine:AddInitState(self.m_idleState)
+    self.m_bundleStateMachine:AddInitState(BaseState:New("nil"))
 end
 
 -- 設置右側禮包畫面
-function setPageViewData()
+function BundleModule:setPageViewData()
+	print("@@in BundleModule setPageViewData")
     self.m_pageViewController = BundleMain.PageView:create(
     	self.m_uiRoot, 
 	    function() 
@@ -85,6 +84,7 @@ end
 
 -- 設置左側按鈕
 function BundleModule:setButton()
+	print("@@in BundleModule setButton")
     for key, buttonData in pairs(BundleMain.ButtonList) do
         -- 按鈕 Layout, Sprite, Node 獲取
         local btnLayout = ccui.Layout:create()
@@ -121,15 +121,15 @@ function BundleModule:setButton()
         self.m_btnListViewNode:addChild(btnLayout)
     end
 end
-
+-- 顯示
 function BundleModule:show()
 	print("@@in BundleModule show")
-	self:setVisible(true)
+	self.m_uiRoot:setVisible(true)
 end
-
+-- 隱藏
 function BundleModule:hide()
 	print("@@in BundleModule hide")
-	self:setVisible(false)
+	self.m_uiRoot:setVisible(false)
 end
 
 BundleMain.BundleModule = BundleModule

@@ -2,7 +2,7 @@ cc.exports.BaseState = {}
  
 function BaseState:New(stateName)
     self.__index = self
-    obj = setmetatable({}, self)
+    local obj = setmetatable({}, self)
     obj.stateName = stateName
     return obj
 end
