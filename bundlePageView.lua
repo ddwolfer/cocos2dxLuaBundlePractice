@@ -23,7 +23,7 @@ function PageView:onCreate()
 end
 
 -- 獲取該class 需要的節點
-function PageView:seekAllNodes( ... )
+function PageView:seekAllNodes()
 	print ("@@ in PageView seekAllNodes")
 	self.m_pageViewNode = seekNodeByName(self.m_uiRoot, "PageView")
 end
@@ -38,15 +38,17 @@ function PageView:newPageView(bundleList)
 		print("@@ add",idx,"Page")
 		-- 如果pool內沒有生成過再生成，有生成過的話直接從pool中取就好
 		if (self.m_pageViewPool[bundleData.BundleId] == nil) then
-			local newPage = BundleNormalView:create(
-				bundleData, 
-				{x = self.m_pageViewNode:getContentSize()["width"]/2, 
-				 y = self.m_pageViewNode:getContentSize()["height"]/2}
-				)
+			-- 生成與設定 page
+			local newPage = BundleNormalView:create(bundleData)
 			newPage:retain() -- 已在class中onExit()寫入release()
+			newPage:setPagePosition(
+				self.m_pageViewNode:getContentSize()["width"]/2, 
+				self.m_pageViewNode:getContentSize()["height"]/2
+				)
 			newPage:setBundlePrice()
 			newPage:setItemData()
 			newPage:setBuyCallBack(self.m_buyButtonCallBack)
+
 			self.m_pageViewPool[newPage.m_bundleData.BundleId] = newPage
 		end
 		self.m_pageViewNode:addPage(self.m_pageViewPool[bundleData.BundleId])
@@ -65,6 +67,5 @@ function PageView:onExit()
 	end
 	self:disableNodeEvents()
 end
-
 
 BundleMain.PageView = PageView

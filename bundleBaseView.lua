@@ -1,6 +1,6 @@
 local BundleBaseView = class("BundleBaseView", ccui.Layout)
 -- 初始化 基本頁面
-function BundleBaseView:ctor(bundleData, pagePosistion)
+function BundleBaseView:ctor(bundleData)
 	print ("@@ in BundleBaseView ctor")
 
 	self.m_bundleData = bundleData
@@ -8,13 +8,13 @@ function BundleBaseView:ctor(bundleData, pagePosistion)
 	if self.onCreate then self:onCreate(pagePosistion) end
 end
 -- 設定位置及Sprite
-function BundleBaseView:onCreate(pagePosistion)
+function BundleBaseView:onCreate()
 	print ("@@ in BundleBaseView onCreate")
 	-- 依據type去決定要用哪一個csb檔案
 	self.m_bundleCsbPath = BundleMain.BundleCsbPath[self.m_bundleData.BundleType]
 	-- 頁面的Sprite
 	self.m_page = cc.CSLoader:createNode(tostring(self.m_bundleCsbPath))
-	self.m_page:setPosition(pagePosistion["x"], pagePosistion["y"])
+	self.m_page:setPosition(0, 0)
 	self:addChild(self.m_page)
 	-- 購買按鈕的callBack function
 	self.m_clickCallBack = function() print("@@ default cllback") end
@@ -33,6 +33,10 @@ end
 function BundleBaseView:setBuyCallBack(buyCallBack)
 	self.m_clickCallBack = buyCallBack
 	self.m_rewardButton:addClickEventListener(self.m_clickCallBack)
+end
+-- 設定頁面位置 (傳入 x, y)
+function BundleBaseView:setPagePosition(x ,y)
+	self.m_page:setPosition(x, y)
 end
 
 return BundleBaseView
