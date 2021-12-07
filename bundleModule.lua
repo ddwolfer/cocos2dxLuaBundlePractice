@@ -6,13 +6,6 @@ require "bundleReward"
 require("baseState")
 require("fsmMachine")
 
-local idleState = BaseState:New("idleState")
-function idleState:OnEnter()  
-    print("@@ idleState:OnEnter()")
-    self:hide()
-end
-
-
 function BundleModule:ctor()
 	print("@@in BundleModule ctor")
 	  -- 禮包背景
@@ -49,23 +42,50 @@ end
 
 function BundleModule:setStateMachine()
 	print("@@in BundleModule setStateMachine")
-	-- 初始(未顯示) 狀態
-	self.m_idleState = idleState
-
-	-- 請求資料 狀態
-	self.m_askDataState = BaseState:New("self.m_askDataState")
-
-
-	-- 顯示 狀態
-	self.m_showState = BaseState:New("self.m_showState")
-
-
-	-- 狀態機
+    -- 狀態機
     self.m_bundleStateMachine = FsmMachine:New()
+    --
+	-- 初始(未顯示) 狀態
+	--
+    self.m_idleState = BaseState:New("idleState")
+    --
+	-- 請求資料 狀態
+	--
+    self.m_askDataState = BaseState:New("askDataState")
+        -- 進入後顯示背景 delay 2秒模擬接收資料
+    self.m_askDataState.onEnterFun = function()
+        self:show()
+        wait(2)
+        self.m_bundleStateMachine:Switch("showState")
+    end
+
+    self.m_askDataState.onLeaveFun = function()
+        self.m_bundleList = BundleMain.BundleList
+        self:setPageViewData()
+        self:setButton()
+    end
+    --
+	-- 顯示 狀態
+    --
+	self.m_showState = BaseState:New("showState")
+        -- 如果還沒請求過資料則跳到askData State
+    self.m_showState.onEnterFun = function()
+        if (self.m_bundleList == nil) then
+            self.m_bundleStateMachine:Switch("askDataState")
+        end
+        self:show()
+    end
+        -- 離開隱藏
+    self.m_showState.onLeaveFun = function()
+        self:hide()
+    end
+    --
+    -- 加入State進入狀態機, 並設定初始State(不會觸發onEnter)
+    --
     self.m_bundleStateMachine:AddState(self.m_idleState)
     self.m_bundleStateMachine:AddState(self.m_askDataState)
     self.m_bundleStateMachine:AddState(self.m_showState)
-    self.m_bundleStateMachine:AddInitState(BaseState:New("nil"))
+    self.m_bundleStateMachine:AddInitState(BaseState:New("idleState"))
 end
 
 -- 設置右側禮包畫面

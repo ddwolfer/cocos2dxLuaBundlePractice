@@ -20,7 +20,6 @@ end
 
 function MainScene:onCreate()
     self.m_bundle = BundleMain.BundleModule:create()
-    self.m_bundle.m_bundleStateMachine:Switch("idleState")
     self:addChild(self.m_bundle.m_uiRoot)
 end
 
